@@ -1,7 +1,11 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Head from "next/head";
+import { getGithubPreviewProps, parseJson } from "next-tinacms-github";
+import { GetStaticProps } from "next";
 
-export default function Home() {
+import styles from "../styles/Home.module.css";
+
+export default function Home({ file }) {
+  const data = file.data;
   return (
     <div className={styles.container}>
       <Head>
@@ -11,11 +15,12 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          {/* Welcome to <a href="https://nextjs.org">Next.js!</a> */}
+          {data.title}
         </h1>
 
         <p className={styles.description}>
-          Get started by editing{' '}
+          Get started by editing{" "}
           <code className={styles.code}>pages/index.js</code>
         </p>
 
@@ -56,10 +61,29 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by{" "}
           <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
         </a>
       </footer>
     </div>
-  )
+  );
 }
+
+export const getStaticProps: GetStaticProps = async ({ preview, previewData }) => {
+  if (preview) return getGithubPreviewProps({
+    ...previewData,
+    fileRelativePath: "contents/home.json",
+    parse: parseJson,
+  });
+  return {
+    props: {
+      sourceProvider: null,
+      error: null,
+      preview: false,
+      file: {
+        fileRelativePath: "contents/home.json",
+        data: (await import("../contents/home.json")).default,
+      },
+    },
+  }
+};
